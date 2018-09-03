@@ -1,0 +1,137 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Reflection;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Xml;
+using Newtonsoft.Json;
+
+namespace csharppi {
+    class BikeRentalStationList {
+
+        public List<Station> stations { get; set; }
+
+    }
+    class Station {
+
+        public string name { get; set; }
+        public int bikesAvailable { get; set; }
+
+    }
+    public interface ICityBikeDataFetcher {
+        Task<int> GetBikeCountInStation (string stationName);
+    }
+    class Program {
+        class OfflineCityBikeDataFetcher : ICityBikeDataFetcher {
+            public int GetBikeCountInStation (string stationName) {
+                StreamReader sr = new StreamReader ("bikes.txt");
+                bool jatk = true;
+
+                while (jatk) {
+
+                    string line = sr.ReadLine ();
+
+                    if (line.Contains (stationName)) {
+
+                        string[] split = line.Split (": ");
+
+                        Console.WriteLine (split[1]);
+
+                        jatk = false;
+
+                    }
+-
+                }
+
+                return 0;
+
+            }
+
+            Task<int> ICityBikeDataFetcher.GetBikeCountInStation (string stationName) {
+                throw new NotImplementedException ();
+            }
+        }
+        private static OfflineCityBikeDataFetcher offbike = new OfflineCityBikeDataFetcher ();
+
+        public static RealTimeCityBikeDataFetcher rtbike = new RealTimeCityBikeDataFetcher ();
+
+        private static OfflineCityBikeDataFetcher Offbike { get => offbike; set => offbike = value; }
+
+        static void Main (string[] args) {
+
+            Console.WriteLine ("Offline or realtime? ");
+            string valinta = Console.ReadLine ();
+
+            if (valinta == "offline") {
+                Console.WriteLine ("Syötä asema: ");
+                string asema1 = Console.ReadLine ();
+                offbike.GetBikeCountInStation (asema1);
+
+            } else if (valinta == "realtime") {
+
+                Console.WriteLine ("Syötä asema: ");
+                string asema = Console.ReadLine ();
+                rtbike.GetBikeCountInStation (asema).Wait ();
+
+                try {
+
+                    if (asema.Any (char.IsDigit)) throw new ArgumentException ("Invalid argument: ");
+
+                } catch (ArgumentException) {
+                    Console.WriteLine ("Invalid argument: ");
+                }
+            }
+        }
+    }
+
+    class RealTimeCityBikeDataFetcher : ICityBikeDataFetcher {
+
+        public async Task<int> GetBikeCountInStation (string stationName) {
+            HttpClient jotain = new HttpClient ();
+
+            bool inlist = false;
+
+            var stringData = await jotain.GetStringAsync ("http://api.digitransit.fi/routing/v1/routers/hsl/bike_rental");
+
+            var aa = JsonConvert.DeserializeObject<BikeRentalStationList> (stringData);
+
+            for (int i = 0; i < 256; i++) {
+
+                if (string.Equals (aa.stations[i].name, stationName, StringComparison.OrdinalIgnoreCase)) {
+                    int bikes = aa.stations[i].bikesAvailable;
+                    Console.WriteLine (bikes);
+                    inlist = true;
+                }
+            }
+
+            try {
+                if (!inlist) {
+                    throw new NotFoundException (stationName);
+                }
+            } catch (NotFoundException) {
+                Console.WriteLine ("Not Found: " + stationName);
+
+            }
+
+            return 0;
+
+        }
+
+        public class NotFoundException : Exception {
+
+            public NotFoundException () {
+
+            }
+            public NotFoundException (string message) : base (message) {
+
+            }
+            public NotFoundException (string message, Exception inner) : base (message, inner) {
+
+            }
+        }
+
+    }
+}
