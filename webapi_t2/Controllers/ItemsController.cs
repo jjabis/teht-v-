@@ -35,6 +35,12 @@ namespace webapi_t2.Controllers
     public Task<Item> DeleteItem(Guid id, Guid itemId) {
         return _context.DeleteItem(id, itemId);
     }
+    [HttpPut]
+    [Route("{itemId}")]
+    public Task<Item> UpdateItem(Guid id, Guid itemId, ModifiedItem item) {
+        return _context.UpdateItem(id, itemId, item);
+    }
 
 }
+
 }

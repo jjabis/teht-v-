@@ -9,8 +9,6 @@ namespace webapi_t2
     public class InMemoryRepository : IRepository
     {
         List<Player> PlayerList = new List<Player>();
-        //List<Item> ItemList = new List<Item>();
-
 
         public Task<Player> Get(Guid id) {
             

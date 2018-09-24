@@ -13,10 +13,9 @@ namespace webapi_t2
 
         }
         
-        public Task<Item> CreateItem(Guid id, NewItem NewItem) {
+        public async Task<Item> CreateItem(Guid id, NewItem NewItem) {
 
             Player p1 = new Player();
-            
             
             Item _item = new Item();
             _item.CreationTime = NewItem.CreationTime;
@@ -24,17 +23,12 @@ namespace webapi_t2
             _item.Level = NewItem.Level;
             _item.ItemType = NewItem.ItemType;
 
-            if (_item.ItemType == 0 && p1.Score < 3) {
-                throw new ItemException();
-            }
-
-
-            else {
-
             
-            return _itemRepository.CreateItem(id, _item);
             
-            }
+            
+            
+            await _itemRepository.CreateItem(id, _item);
+            return _item;
         }
         public Task<Item[]> GetAllItems(Guid id){
             return _itemRepository.GetAllItems(id);

@@ -26,7 +26,7 @@ namespace webapi_t2
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IRepository, InMemoryRepository>();
+            services.AddSingleton<IRepository, MongoDbRepository>();
             services.AddTransient<PlayersProcessor>();
             services.AddTransient<ItemProcessor>();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
@@ -38,7 +38,6 @@ namespace webapi_t2
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                
             }
             else
             {

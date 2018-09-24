@@ -17,7 +17,7 @@ namespace webapi_t2.Models
     }
     public enum ItemType
     {
-        Sword,
+        Weapon,
         Relic,
         HealthKit,
     }

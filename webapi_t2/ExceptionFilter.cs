@@ -3,8 +3,6 @@ using System.Net;
 using System.Net.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using webapi_t2.Models;
-using webapi_t2.Controllers;
 
 namespace webapi_t2
 {
