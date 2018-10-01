@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using webapi_t2.Models;
 
 namespace webapi_t2
@@ -12,12 +13,26 @@ namespace webapi_t2
             _Repository = Repository;
 
         }
+        public async Task<Player[]> Top10() {
+            return await _Repository.Top10();
+        }
+        public async Task<Player[]> GetX(int x) {
+            return await _Repository.GetX(x);
+        }
+        public Task<Player> GetName(string name) {
+
+        return _Repository.GetName(name);
+    }
+        public Task<BsonDocument> Common() {
+            return _Repository.Common();
+        }
 
         public async Task<Player> Create(NewPlayer player)
         {
             Player p1 = new Player();
             p1.Id = Guid.NewGuid();
             p1.Name = player.Name;
+            p1.Score = player.Score;
 
             await _Repository.Create(p1);
             return p1;

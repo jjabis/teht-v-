@@ -1,11 +1,16 @@
 using System;
 using System.Threading.Tasks;
+using MongoDB.Bson;
 using webapi_t2.Models;
 
 namespace webapi_t2
 {
     public interface IRepository
     {
+        Task<Player[]> Top10();
+        Task<Player[]> GetX(int x);
+        Task<Player>GetName(string name);
+        Task<BsonDocument> Common();
         Task<Player> Get(Guid id);
         Task<Player[]> GetAll();
         Task<Player> Create(Player player);

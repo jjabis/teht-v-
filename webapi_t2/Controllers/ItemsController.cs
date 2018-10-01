@@ -7,6 +7,7 @@ namespace webapi_t2.Controllers
 {
     [Route("api/players/{id}/[controller]")]
     [ApiController]
+    [ExceptionFilter]
     public class ItemsController : ControllerBase
     {
         private readonly ItemProcessor _context;

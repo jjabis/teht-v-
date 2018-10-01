@@ -24,6 +24,8 @@ namespace webapi_t2
             _item.ItemType = NewItem.ItemType;
 
             
+            if (_item.Level > p1.Score)
+                throw new ItemException();
             
             
             

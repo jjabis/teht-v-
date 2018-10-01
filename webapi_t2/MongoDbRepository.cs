@@ -4,6 +4,8 @@ using MongoDB.Driver;
 using MongoDB.Bson;
 using System.Collections.Generic;
 using webapi_t2.Models;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace webapi_t2
 {
@@ -19,7 +21,71 @@ namespace webapi_t2
             _collection = database.GetCollection<Player>("players");
             _bsonDocumentCollection = database.GetCollection<BsonDocument>("players");
         }
+        public async Task<Player[]> Top10() {
+            List<Player> players = await _collection.Find(new BsonDocument()).ToListAsync();
+            var sort = Builders<Player>.Sort.Descending("Score");
+            int limit = 10;
+            var cursor = _collection.Find(_=>true).Sort(sort).Limit(limit);
+            players = await cursor.ToListAsync();
+            return players.ToArray();
 
+        }
+        public async Task<Player[]> GetX(int x) {
+            FilterDefinition<Player> filter = Builders<Player>.Filter.Gte("Score", x);
+            List<Player> plrs = await _collection.Find(filter).ToListAsync();
+
+            return plrs.ToArray();
+        }
+        public async Task<Player> GetName(string name) {
+            FilterDefinition<Player> filter = Builders<Player>.Filter.Eq("Name",name);
+            return await _collection.Find(filter).FirstAsync();
+        }
+        public async Task<BsonDocument> Common() {
+            var project = new BsonDocument{{"$project", new BsonDocument{{"Score", 1}}}};
+            var group = new BsonDocument 
+                { 
+                    { "$group", 
+                        new BsonDocument 
+                            { 
+                                { "_id", new BsonDocument 
+                                             { 
+                                                 { 
+                                                     "Score","$Score" 
+                                                 } 
+                                             } 
+                                }, 
+                                { 
+                                    "Count", new BsonDocument 
+                                                 { 
+                                                     { 
+                                                         "$sum", 1 
+                                                     } 
+                                                 } 
+                                }
+                            }
+                    }
+                };
+                                
+                                
+               var sort = new BsonDocument 
+               {
+                   { "$sort",
+                    new BsonDocument 
+                        {
+                            {"Count", -1}
+                        }
+                    } 
+                  
+                
+                };
+            
+            var pipeline = new[] { project, group, sort };
+            
+            var result = _collection.Aggregate<BsonDocument>(pipeline);
+
+            return await result.FirstAsync();
+
+        }
         public async Task<Player> Create(Player player) {
             await _collection.InsertOneAsync(player);
             return player;
@@ -112,5 +178,6 @@ namespace webapi_t2
 
             return i1;
         }
+        
     }
 }
